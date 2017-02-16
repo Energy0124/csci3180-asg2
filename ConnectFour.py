@@ -1,3 +1,6 @@
+import abc
+
+
 class ConnectFour:
     # - Initialize the Connect Four game.
     def __init__(self):
@@ -20,16 +23,22 @@ class ConnectFour:
 
 
 class Player:
+    __metaclass__ = abc.ABCMeta
+
     def __init__(self, player_symbol):
         self.playerSymbol = player_symbol
 
+    @abc.abstractmethod
     def next_column(self, game_board):
         pass
 
 
 class Human(Player):
-    pass
+    def next_column(self, game_board):
+        pass
+
 
 
 class Computer(Player):
-    pass
+    def next_column(self, game_board):
+        pass
