@@ -7,6 +7,14 @@ class GameBoard:
         self.board = [[' '] * 6 for _ in range(7)]
         self.column_top = [0] * 7
 
+    def is_full(self):
+        full = True
+        for top in self.column_top:
+            if top < 5:
+                full = False
+                break
+        return full
+
     def play_on_column(self, column, symbol):
         column -= 1
         if not self.column_top[column] < 6:
@@ -32,6 +40,7 @@ class Player:
     def __init__(self, player_symbol):
         self.player_symbol = player_symbol
 
+    # return the next column to play as an int from 1 - 7, return False is there is not valid move
     @abc.abstractmethod
     def next_column(self, game_board):
         pass
@@ -39,7 +48,22 @@ class Player:
 
 class Human(Player):
     def next_column(self, game_board):
-        pass
+        while True:
+            try:
+                next_move = int(
+                    raw_input("Which column do you want to play next? (1-7) \n"
+                                                               "Your choice is: "))
+            except ValueError:
+                print "Input is not a number, please try again."
+            else:
+                if 1 > next_move > 7:
+                    print "Your next move must be between 1 to 7, please try again."
+                elif game_board.column_top[next_move - 1] >= 6:
+                    print "Invalid move. Column " + str(next_move) + " is already full. Please try again."
+                elif game_board.is_full():
+                    return False
+                else:
+                    return next_move
 
 
 class Computer(Player):
@@ -77,12 +101,14 @@ class ConnectFour:
 
     # - Start a new game and play until winning/losing or draw.
     def start_game(self):
+        print "Initial game board"
+        self.print_game_board()
+
         while not self.won:
-            print "Initial game board"
-            self.print_game_board()
             # get next move from player1
+            print "Player " + self.get_current_player().player_symbol + " turn."
             next_column = self.get_current_player().next_column(self.game_board)
-            if next_column == False:
+            if not next_column:
                 print "no more valid placement, game ended"
                 break
             successfully_placed = self.game_board.play_on_column(next_column, self.get_current_player().player_symbol)
@@ -91,6 +117,7 @@ class ConnectFour:
                 break
             else:
                 print "Player " + self.get_current_player().player_symbol + " plays on column " + str(next_column)
+            self.print_game_board()
             self.next_turn()
 
     def next_turn(self):
@@ -101,7 +128,7 @@ class ConnectFour:
     def print_game_board(self):
         print "| 1 | 2 | 3 | 4 | 5 | 6 | 7 | "
         print "-" * 30
-        for row in range(5, 0, -1):
+        for row in reversed(range(6)):
             print "|",
             for column in range(7):
                 print self.game_board.board[column][row] + " |",
@@ -135,7 +162,7 @@ class ConnectFour:
                             self.player1 = Human('O')
                             print "Player O is Human"
                         elif player_number_string == "second":
-                            self.player2 = Human('O')
+                            self.player2 = Human('X')
                             print "Player X is Human"
                     break
 
