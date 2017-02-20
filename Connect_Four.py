@@ -52,7 +52,7 @@ class Human(Player):
             try:
                 next_move = int(
                     raw_input("Which column do you want to play next? (1-7) \n"
-                                                               "Your choice is: "))
+                              "Your choice is: "))
             except ValueError:
                 print "Input is not a number, please try again."
             else:
