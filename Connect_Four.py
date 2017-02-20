@@ -5,7 +5,16 @@ import random
 class GameBoard:
     def __init__(self):
         self.board = [[' '] * 6 for _ in range(7)]
-        self.column_count = [0] * 7
+        self.column_top = [0] * 7
+
+    def play_on_column(self, column, symbol):
+        column -= 1
+        if not self.column_top[column] < 6:
+            return False
+        else:
+            self.board[column][self.column_top[column]] = symbol
+            self.column_top[column] += 1
+            return True
 
 
 class Utils:
@@ -21,7 +30,7 @@ class Player:
     __metaclass__ = abc.ABCMeta
 
     def __init__(self, player_symbol):
-        self.playerSymbol = player_symbol
+        self.player_symbol = player_symbol
 
     @abc.abstractmethod
     def next_column(self, game_board):
@@ -35,10 +44,12 @@ class Human(Player):
 
 class Computer(Player):
     def next_column(self, game_board):
-        column_range = range(1, 7)
-        for index, column in enumerate(game_board.column_count, 1):
-            if column >= 6:
+        column_range = range(1, 8)
+        for index, column_top in enumerate(game_board.column_top, 1):
+            if column_top >= 6:
                 column_range.remove(index)
+        if len(column_range) == 0:
+            return False
         return random.choice(column_range)
 
 
@@ -67,15 +78,30 @@ class ConnectFour:
     # - Start a new game and play until winning/losing or draw.
     def start_game(self):
         while not self.won:
+            print "Initial game board"
             self.print_game_board()
             # get next move from player1
             next_column = self.get_current_player().next_column(self.game_board)
+            if next_column == False:
+                print "no more valid placement, game ended"
+                break
+            successfully_placed = self.game_board.play_on_column(next_column, self.get_current_player().player_symbol)
+            if not successfully_placed:
+                print "invalid placement, aborting program"
+                break
+            else:
+                print "Player " + self.get_current_player().player_symbol + " plays on column " + str(next_column)
+            self.next_turn()
+
+    def next_turn(self):
+        self.turn_count += 1
+        self.turn = self.turn_count % 2
 
     # - Print out the game board in the command line window.
     def print_game_board(self):
         print "| 1 | 2 | 3 | 4 | 5 | 6 | 7 | "
         print "-" * 30
-        for row in range(6):
+        for row in range(5, 0, -1):
             print "|",
             for column in range(7):
                 print self.game_board.board[column][row] + " |",
