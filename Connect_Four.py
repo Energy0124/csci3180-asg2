@@ -16,6 +16,7 @@
 
 
 import abc
+import copy
 import itertools
 import random
 
@@ -25,6 +26,13 @@ class GameBoard:
         self.board = [[' '] * 6 for _ in range(7)]
         self.column_top = [0] * 7
 
+    def is_valid_move(self, column):
+        column -= 1
+        if not self.column_top[column] < 6:
+            return False
+        else:
+            return True
+
     def is_full(self):
         full = True
         for top in self.column_top:
@@ -33,6 +41,7 @@ class GameBoard:
                 break
         return full
 
+    # column must be between 1-7
     def play_on_column(self, column, symbol):
         column -= 1
         if not self.column_top[column] < 6:
@@ -112,6 +121,13 @@ class Utils:
     def highlight_text(text):
         return "\033[7m" + text + "\033[m"
 
+    @staticmethod
+    def opponent_symbol(symbol):
+        if symbol == 'O':
+            return 'X'
+        else:
+            return 'O'
+
 
 class Player:
     __metaclass__ = abc.ABCMeta
@@ -157,8 +173,41 @@ class Computer(Player):
 
 
 class CleverAI(Player):
+    def score(self, game_board, column):
+        future_board = copy.deepcopy(game_board)
+        if future_board.is_valid_move(column):
+            future_board.play_on_column(column, self.player_symbol)
+            if future_board.is_won(self.player_symbol):
+                return 1000
+            for counter_move in range(1, 8):
+                future_board2 = copy.deepcopy(future_board)
+                if future_board2.is_valid_move(counter_move):
+                    future_board2.play_on_column(counter_move, Utils.opponent_symbol(self.player_symbol))
+                    # print str(future_board2.is_won(Utils.opponent_symbol(self.player_symbol)))
+                    if len(future_board2.is_won(Utils.opponent_symbol(self.player_symbol))) != 0:
+                        return -1000
+            return 0
+        else:
+            return -10000
+
     def next_column(self, game_board):
-        pass
+        column_range = range(1, 8)
+        score_list = []
+        for column in column_range:
+            score_list.append([self.score(game_board, column), column])
+        score_list.sort()
+        groups = []
+        for key, group in itertools.groupby(score_list, lambda x: x[0]):
+            score_group = []
+            for pair in group:
+                score_group.append(pair)
+            #     print str(pair) + " is " + str(key)
+            # print
+            groups.append(score_group)
+        groups.sort(reverse=True)
+        # print str(groups)
+        # print random.choice(groups[0])[1]
+        return random.choice(groups[0])[1]
 
 
 class ConnectFour:
@@ -242,12 +291,13 @@ class ConnectFour:
                                             + " player: \n"
                                               "1. Computer \n"
                                               "2. Human \n"
+                                              "3. CleverAI \n"
                                               "Your choice is: "))
             except ValueError:
                 print "Input is not a number, please try again."
             else:
-                if player_type != 1 and player_type != 2:
-                    print "Input must be either 1 or 2, please try again."
+                if not 0 < player_type < 4:
+                    print "Input must be either 1, 2 or 3, please try again."
                 else:
                     if player_type == 1:
                         if player_number_string == "first":
@@ -263,6 +313,13 @@ class ConnectFour:
                         elif player_number_string == "second":
                             self.player2 = Human('X')
                             print "Player X is Human"
+                    elif player_type == 3:
+                        if player_number_string == "first":
+                            self.player1 = CleverAI('O')
+                            print "Player O is CleverAI"
+                        elif player_number_string == "second":
+                            self.player2 = CleverAI('X')
+                            print "Player X is CleverAI"
                     break
 
     def setup(self):
