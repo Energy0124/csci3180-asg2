@@ -1,5 +1,6 @@
 import abc
 import random
+import itertools
 
 
 class GameBoard:
@@ -23,6 +24,67 @@ class GameBoard:
             self.board[column][self.column_top[column]] = symbol
             self.column_top[column] += 1
             return True
+
+    def is_won(self, player_symbol):
+        connected_list = []
+        # check vertical connect 4
+        for column, column_list in enumerate(self.board):
+            temp_list = []
+            for row, symbol in enumerate(column_list):
+                if symbol == player_symbol:
+                    temp_list.append([column, row])
+                else:
+                    if len(temp_list) >= 4:
+                        connected_list.append(temp_list)
+                    temp_list = []
+            if len(temp_list) >= 4:
+                connected_list.append(temp_list)
+        # check horizontal connect 4
+        for row in range(6):
+            temp_list = []
+            for column in range(7):
+                if self.board[column][row] == player_symbol:
+                    temp_list.append([column, row])
+                else:
+                    if len(temp_list) >= 4:
+                        connected_list.append(temp_list)
+                    temp_list = []
+            if len(temp_list) >= 4:
+                connected_list.append(temp_list)
+        # check diagonal connect 4 (\ direction)
+        for sum_of_index in range(6 + 7 - 2):
+            temp_list = []
+            for row in range(6):
+                for column in range(7):
+                    if row + column == sum_of_index:
+                        # print [column, row]
+                        if self.board[column][row] == player_symbol:
+                            temp_list.append([column, row])
+                        else:
+                            if len(temp_list) >= 4:
+                                connected_list.append(temp_list)
+                            temp_list = []
+                if len(temp_list) >= 4:
+                    connected_list.append(temp_list)
+        # check diagonal connect 4 (/ direction)
+        # temp_board = list(reversed(self.board))
+        for sum_of_index in range(6 + 7 - 2):
+            temp_list = []
+            for row in range(6):
+                for column in range(7):
+                    if row + column == sum_of_index:
+                        # print [6-column, row]
+                        if self.board[6 - column][row] == player_symbol:
+                            temp_list.append([6 - column, row])
+                        else:
+                            if len(temp_list) >= 4:
+                                connected_list.append(temp_list)
+                            temp_list = []
+                if len(temp_list) >= 4:
+                    connected_list.append(temp_list)
+
+        connected_list.sort()
+        return list(key for key, _ in itertools.groupby(connected_list))
 
 
 class Utils:
@@ -56,7 +118,7 @@ class Human(Player):
             except ValueError:
                 print "Input is not a number, please try again."
             else:
-                if 1 > next_move > 7:
+                if not 0 < next_move < 8:
                     print "Your next move must be between 1 to 7, please try again."
                 elif game_board.column_top[next_move - 1] >= 6:
                     print "Invalid move. Column " + str(next_move) + " is already full. Please try again."
@@ -98,6 +160,10 @@ class ConnectFour:
         self.turn = self.turn_count % 2
         # reach win condition or not
         self.won = False
+        # won player
+        self.won_player = self.player1
+        # connected set
+        self.connected_list=[]
 
     # - Start a new game and play until winning/losing or draw.
     def start_game(self):
@@ -106,19 +172,30 @@ class ConnectFour:
 
         while not self.won:
             # get next move from player1
-            print "Player " + self.get_current_player().player_symbol + " turn."
-            next_column = self.get_current_player().next_column(self.game_board)
+            print "Player " + self.current_player.player_symbol + " turn."
+            next_column = self.current_player.next_column(self.game_board)
             if not next_column:
                 print "no more valid placement, game ended"
                 break
-            successfully_placed = self.game_board.play_on_column(next_column, self.get_current_player().player_symbol)
+            successfully_placed = self.game_board.play_on_column(next_column, self.current_player.player_symbol)
             if not successfully_placed:
                 print "invalid placement, aborting program"
                 break
             else:
-                print "Player " + self.get_current_player().player_symbol + " plays on column " + str(next_column)
+                print "Player " + self.current_player.player_symbol + " plays on column " + str(next_column)
             self.print_game_board()
+            self.connected_list = self.game_board.is_won(self.current_player.player_symbol)
+            if len(self.connected_list) > 0:
+                self.won = True
+                self.won_player = self.current_player
+            # debug print all winning combination
+            # print str(connected_list)
             self.next_turn()
+        if self.won:
+            print "Player " + self.won_player.player_symbol + " wins the game!"
+        else:
+            print "Game draw."
+        self.print_game_board()
 
     def next_turn(self):
         self.turn_count += 1
@@ -126,6 +203,10 @@ class ConnectFour:
 
     # - Print out the game board in the command line window.
     def print_game_board(self):
+        if self.won:
+            for connected in self.connected_list:
+                for pair in connected:
+                    self.game_board.board[pair[0]][pair[1]]= Utils.highlight_text(self.game_board.board[pair[0]][pair[1]])
         print "| 1 | 2 | 3 | 4 | 5 | 6 | 7 | "
         print "-" * 30
         for row in reversed(range(6)):
@@ -170,7 +251,8 @@ class ConnectFour:
         self.setup_player("first")
         self.setup_player("second")
 
-    def get_current_player(self):
+    @property
+    def current_player(self):
         if self.turn == 0:
             return self.player1
         else:
