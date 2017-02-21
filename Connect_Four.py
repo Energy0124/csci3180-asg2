@@ -19,6 +19,7 @@ import abc
 import copy
 import itertools
 import random
+import sys
 
 
 class GameBoard:
@@ -191,6 +192,8 @@ class CleverAI(Player):
             return -10000
 
     def next_column(self, game_board):
+        if game_board.is_full():
+            return False
         column_range = range(1, 8)
         score_list = []
         for column in column_range:
@@ -201,7 +204,7 @@ class CleverAI(Player):
             score_group = []
             for pair in group:
                 score_group.append(pair)
-            #     print str(pair) + " is " + str(key)
+            # print str(pair) + " is " + str(key)
             # print
             groups.append(score_group)
         groups.sort(reverse=True)
@@ -230,6 +233,7 @@ class ConnectFour:
         self.won_player = self.player1
         # connected set
         self.connected_list = []
+        self.highlight_board = [[False] * 6 for _ in range(7)]
 
     # - Start a new game and play until winning/losing or draw.
     def start_game(self):
@@ -270,16 +274,21 @@ class ConnectFour:
     # - Print out the game board in the command line window.
     def print_game_board(self):
         if self.won:
+            self.highlight_board = [[False] * 6 for _ in range(7)]
             for connected in self.connected_list:
                 for pair in connected:
-                    self.game_board.board[pair[0]][pair[1]] = Utils.highlight_text(
-                        self.game_board.board[pair[0]][pair[1]])
+                    self.highlight_board[pair[0]][pair[1]] = True
         print "| 1 | 2 | 3 | 4 | 5 | 6 | 7 | "
         print "-" * 30
         for row in reversed(range(6)):
-            print "|",
+            sys.stdout.write("|")
             for column in range(7):
-                print self.game_board.board[column][row] + " |",
+                if self.won and self.highlight_board[column][row]:
+                    sys.stdout.write(Utils.highlight_text(" " + self.game_board.board[column][row] + " ") + "|")
+                else:
+                    sys.stdout.write(" " + self.game_board.board[column][row] + " " + "|")
+            sys.stdout.write(" ")
+            sys.stdout.flush()
             print
             print "-" * 30
 
