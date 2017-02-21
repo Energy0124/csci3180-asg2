@@ -1,6 +1,6 @@
 import abc
-import random
 import itertools
+import random
 
 
 class GameBoard:
@@ -93,7 +93,7 @@ class Utils:
 
     @staticmethod
     def highlight_text(text):
-        return "\033[30;47m" + text + "\033[m"
+        return "\033[7m" + text + "\033[m"
 
 
 class Player:
@@ -163,7 +163,7 @@ class ConnectFour:
         # won player
         self.won_player = self.player1
         # connected set
-        self.connected_list=[]
+        self.connected_list = []
 
     # - Start a new game and play until winning/losing or draw.
     def start_game(self):
@@ -206,7 +206,8 @@ class ConnectFour:
         if self.won:
             for connected in self.connected_list:
                 for pair in connected:
-                    self.game_board.board[pair[0]][pair[1]]= Utils.highlight_text(self.game_board.board[pair[0]][pair[1]])
+                    self.game_board.board[pair[0]][pair[1]] = Utils.highlight_text(
+                        self.game_board.board[pair[0]][pair[1]])
         print "| 1 | 2 | 3 | 4 | 5 | 6 | 7 | "
         print "-" * 30
         for row in reversed(range(6)):
