@@ -37,7 +37,7 @@ class GameBoard:
     def is_full(self):
         full = True
         for top in self.column_top:
-            if top < 5:
+            if top < 6:
                 full = False
                 break
         return full
@@ -136,7 +136,7 @@ class Player:
     def __init__(self, player_symbol):
         self.player_symbol = player_symbol
 
-    # return the next column to play as an int from 1 - 7, return False is there is not valid move
+    # return the next column to play as an int from 1 - 7, return False is there is no valid move
     @abc.abstractmethod
     def next_column(self, game_board):
         pass
@@ -173,6 +173,10 @@ class Computer(Player):
         return random.choice(column_range)
 
 
+# a brute force AI with search depth 2
+# based on the basic MinMax algorithm
+# this code this is disgustingly ugly, I should have used the Negamax algorithm
+# but I am stupid and lazy, so I just leave it here
 class CleverAI(Player):
     def score(self, game_board, column):
         future_board = copy.deepcopy(game_board)
@@ -180,13 +184,37 @@ class CleverAI(Player):
             future_board.play_on_column(column, self.player_symbol)
             if future_board.is_won(self.player_symbol):
                 return 1000
+            # search depth 1
             for counter_move in range(1, 8):
                 future_board2 = copy.deepcopy(future_board)
                 if future_board2.is_valid_move(counter_move):
                     future_board2.play_on_column(counter_move, Utils.opponent_symbol(self.player_symbol))
                     # print str(future_board2.is_won(Utils.opponent_symbol(self.player_symbol)))
-                    if len(future_board2.is_won(Utils.opponent_symbol(self.player_symbol))) != 0:
+                    if future_board2.is_won(Utils.opponent_symbol(self.player_symbol)):
                         return -1000
+            # search depth 2
+            for counter_move in range(1, 8):
+                future_board2 = copy.deepcopy(future_board)
+                if future_board2.is_valid_move(counter_move):
+                    future_board2.play_on_column(counter_move, Utils.opponent_symbol(self.player_symbol))
+                    for move in range(1, 8):
+                        future_board3 = copy.deepcopy(future_board2)
+                        if future_board3.is_valid_move(move):
+                            future_board3.play_on_column(move, self.player_symbol)
+                            if future_board3.is_won(self.player_symbol):
+                                return 900
+                    for move in range(1, 8):
+                        future_board3 = copy.deepcopy(future_board2)
+                        if future_board3.is_valid_move(move):
+                            future_board3.play_on_column(move, self.player_symbol)
+                            for counter_move2 in range(1, 8):
+                                future_board4 = copy.deepcopy(future_board3)
+                                if future_board4.is_valid_move(counter_move2):
+                                    future_board4.play_on_column(counter_move2,
+                                                                 Utils.opponent_symbol(self.player_symbol))
+                                    if future_board4.is_won(Utils.opponent_symbol(self.player_symbol)):
+                                        return -900
+
             return 0
         else:
             return -10000
@@ -209,8 +237,9 @@ class CleverAI(Player):
             groups.append(score_group)
         groups.sort(reverse=True)
         # print str(groups)
-        # print random.choice(groups[0])[1]
-        return random.choice(groups[0])[1]
+        choice = random.choice(groups[0])[1]
+        print choice
+        return choice
 
 
 class ConnectFour:
