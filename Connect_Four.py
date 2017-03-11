@@ -173,7 +173,7 @@ class Computer(Player):
         return random.choice(column_range)
 
 
-# a brute force AI with search depth 2
+# a brute force hardcoded AI with search depth 2
 # based on the basic MinMax algorithm
 # this code this is disgustingly ugly, I should have used the Negamax algorithm
 # but I am stupid and lazy, so I just leave it here
