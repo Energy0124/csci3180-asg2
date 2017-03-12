@@ -372,6 +372,7 @@ class ConnectFour:
             return self.player2
 
 
-connect_four = ConnectFour()
-connect_four.setup()
-connect_four.start_game()
+if __name__ == '__main__':
+    connect_four = ConnectFour()
+    connect_four.setup()
+    connect_four.start_game()

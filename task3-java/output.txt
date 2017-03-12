@@ -1,0 +1,17 @@
+Mary moved to Room 2047.
+Tony moved to Room 2047.
+Washer 1 moved to Room 2047.
+Washer 1 consumed 220.0 battery.
+Refrigerator 1 moved to Room 2047.
+Refrigerator 1 consumed 200.0 battery.
+Peter moved to Table 1.
+Peter moved to Room 2047.
+Table 1 was moved to Room 2047.
+Peter consumed 660.0 calories.
+Peter moved to Chair 1.
+Peter moved to Room 2047.
+Chair 1 was moved to Room 2047.
+Peter consumed 496.0 calories.
+Peter moved to Dinning hall 1.
+Peter paid 80.0 dollars.
+Peter finished the dinner.
