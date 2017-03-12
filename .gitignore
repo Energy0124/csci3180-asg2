@@ -186,3 +186,5 @@ hs_err_pid*
 .idea
 *.pyc
 
+/~$report.docx
+/~WRL1315.tmp
