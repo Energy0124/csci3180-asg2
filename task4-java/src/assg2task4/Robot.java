@@ -71,7 +71,7 @@ public class Robot {
             //Move the object to the destination
             battery_consumed += this.MoveTo(Destination, Obj);
             //Print calories consumed
-            System.out.println(this.name + " consumed " + battery_consumed + " battery.");
+            System.out.println(this.name + " consumed " + battery_consumed + " units of battery.");
         }
     }
 

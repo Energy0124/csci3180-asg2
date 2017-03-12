@@ -1,0 +1,15 @@
+Mary moved to Room 2047.
+Tony moved to Room 2047.
+Washer 1 moved to Room 2047.
+Washer 1 consumed 220.0 battery.
+Refrigerator 1 moved to Room 2047.
+Refrigerator 1 consumed 200.0 battery.
+Jarvis moved to Table 1.
+Jarvis moved to Room 2047.
+Table 1 was moved to Room 2047.
+Jarvis consumed 260.0 units of battery.
+Jarvis moved to Chair 1.
+Jarvis moved to Room 2047.
+Chair 1 was moved to Room 2047.
+Jarvis consumed 272.0 units of battery.
+Jarvis charged 500.0 units of battery.
